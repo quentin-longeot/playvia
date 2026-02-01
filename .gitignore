@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Tizen Studio / Eclipse
+.sign/
+.settings/
+*.wgt
+
+# Vidéos de test
+mocks/videos/*.mp4
+
+# Fichiers de dev/notes
+review.txt
+
+# Divers
+*.log
+*.tmp

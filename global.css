@@ -1,0 +1,217 @@
+/* Global selectors */
+
+@keyframes monAnimation {
+  /* ici un scénario d'animation */
+}
+
+:focus {
+  outline: none;
+}
+
+body {
+  /* Reset default values */
+  margin: unset;
+
+  /* Custom styles */
+  font-family: "Poppins", sans-serif;
+  font-weight: normal;
+}
+
+h1 {
+  /* Reset default values */
+  margin-block-start: unset;
+  margin-block-end: unset;
+  margin-inline-start: unset;
+  margin-inline-end: unset;
+
+  /* Custom styles */
+  color: #FFFFFF;
+  font-size: 36px;
+  font-weight: bold;
+	margin-left: 148px;
+  margin-right: 148px;
+}
+
+main {
+  background-image: url('./assets/background-smarttv.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}
+
+/* Ids selectors */
+
+#av-player {
+  display: none;
+  height: 1080px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 1920px;
+}
+
+#player-overlay {
+  display: none;
+}
+
+#logo {
+  height: 70px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  width: auto;
+}
+
+#overlay-actions-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+#overlay-bar {
+  -webkit-appearance: none;
+  border-radius: 8px;
+  height: 6px;
+  width: calc(100% - 160px);
+}
+
+#overlay-bar::-webkit-progress-bar {
+  /* Progress background */
+  background-color: #FFFFFF;
+  border-radius: 8px;
+}
+
+#overlay-bar::-webkit-progress-value {
+  /* Progress value */
+  background-color: #D12E26;
+  border-radius: 8px;
+}
+
+#overlay-bar-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  position: relative;
+  width: calc(100% - 120px);
+}
+
+#overlay-bar-container:focus #overlay-bar {
+  height: 8px;
+}
+
+#overlay-bar-container:focus #overlay-bar-time::after {
+  height: 20px;
+  width: 20px;
+}
+
+#overlay-bar-container:focus #overlay-bar::-webkit-progress-value {
+  /* Progress background on focus */
+  background-color: #D12E26;
+  border-radius: 8px;
+  height: 8px;
+}
+
+#overlay-bar-time {
+  position: absolute;
+  top: 50%;
+  left: 80px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+#overlay-bar-time::after {
+  background-color: #D12E26;
+  border-radius: 50%;
+  content: '';
+  display: block;
+  height: 0;
+  width: 0;
+}
+
+#overlay-container {
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  bottom: 0;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  height: 150px;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  width: 100%;
+}
+
+/* Classes selectors */
+
+.app {
+  margin-left: 148px;
+  margin-right: 148px;
+}
+
+.card {
+  border-radius: 16px;
+  display: inline-block;
+  height: 428px;
+  overflow: visible;
+  position: relative;
+  margin-bottom: 30px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 8px;
+  vertical-align: top;
+  width: 286px;
+}
+
+.card:focus .card-image {
+  transform: scale(1.1);
+  transition: transform 0.3s ease-in-out;
+  border: solid 4px #FFFFFF;
+}
+
+.card:focus .card-title {
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.card-image {
+  width: 280px;
+  height: 376px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.card-title {
+  color: white;
+  margin-top: 24px;
+  font-size: 20px;
+  width: 286px;
+}
+
+.overlay-button {
+  height: 40px;
+  margin-left: 40px;
+  margin-right: 40px;
+  width: 40px;
+}
+
+.overlay-button path, .overlay-button polygon {
+  fill: #FFFFFF;
+}
+
+.overlay-button:focus path, .overlay-button:focus polygon {
+  fill: #D12E26;
+}
+
+.overlay-button svg {
+  height: 100%;
+  width: 100%;
+}
+
+.overlay-time {
+  text-align: center;
+  width: 80px;
+}
