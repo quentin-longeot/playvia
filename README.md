@@ -1,10 +1,11 @@
 <div style="text-align: center">
-  <img alt="Playvia logo" height="70" src="./assets/logo.svg" />
+  <img alt="Playvia logo" height="70" src="./dist/assets/logo.svg" />
 </div>
 <br />
 Playvia is a SmartTV application for Samsung TVs (2017 - 2024).<br />
 It provides a clean and intuitive interface to browse and play video content stored on external hard drive disks.
 
+<br />
 <br />
 
 > **NOTE**: The application can also run in a web browser with mocked data for development purposes.
@@ -41,17 +42,17 @@ It provides a clean and intuitive interface to browse and play video content sto
 
 ### List interface
 
-<img alt="list interface" height="432" src="./assets/docs/main-page.png" />
+<img alt="list interface" height="432" src="./dist/assets/docs/main-page.png" />
 
 **With animation**
 
-<img alt="list interface animation" height="432" src="./assets/docs/main-page-animation.gif" />
+<img alt="list interface animation" height="432" src="./dist/assets/docs/main-page-animation.gif" />
 
 ### Player interface
 
-<img alt="player interface - pause focused" height="432" src="./assets/docs/player-overlay-1.png" />
+<img alt="player interface - pause focused" height="432" src="./dist/assets/docs/player-overlay-1.png" />
 
-<img alt="player interface - bar focused" height="432" src="./assets/docs/player-overlay-2.png" />
+<img alt="player interface - bar focused" height="432" src="./dist/assets/docs/player-overlay-2.png" />
 
 ## How to run the Application
 
@@ -78,16 +79,32 @@ It provides a clean and intuitive interface to browse and play video content sto
    - A modern web browser (Chrome, Firefox, Edge, Safari)
    - [Node.js](https://nodejs.org/) installed on your machine
 
-2. **Run the Application**
+2. **Install Dependencies**
    ```bash
-   npx http-server --cors
+   npm install
    ```
-   Then open http://localhost:8080 in your browser.
 
-3. **Development Notes**
-   - When running locally, the app uses mocked movie data from `mocks/moviesList.js`
+3. **Run in Development Mode**
+   ```bash
+   npm run dev
+   ```
+   This will:
+   - Copy mocked data to the `dist` folder
+   - Build the TypeScript source code
+   - Start a development server with hot-reload on http://localhost:8000
+   - Automatically recompile when you make changes
+
+4. **Build for Production**
+   ```bash
+   npm run build
+   ```
+   This creates an optimized, minified bundle in the `dist` folder.
+
+5. **Development Notes**
+   - When running locally, the app uses mocked movie data from `mocks/moviesList.ts`
    - The mocked images are located in `mocks/assetsMocked/`
    - Video playback uses the HTML5 Video Player instead of AVPlayer
+   - All built files are output to the `dist` folder
 
 ## Project components
 
