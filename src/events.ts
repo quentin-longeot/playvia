@@ -1,0 +1,16 @@
+export const CREATE_AV_PLAYER = 'createAVPlayer';
+export const CREATE_VIDEO_PLAYER = 'createVideoPlayer';
+export const EXTERNAL_STORAGE_CHARGED = 'externalStorageCharged';
+export const FOCUS_ELEMENT = 'focusElement';
+export const PLAYER_CHANGE_SPEED = 'playerChangeSpeed';
+export const PLAYER_FAST_FORWARD = 'playerFastForward';
+export const PLAYER_KILL = 'playerKill';
+export const PLAYER_NEXT = 'playerNext';
+export const PLAYER_PLAY_PAUSE = 'playerPlayPause';
+export const PLAYER_PREVIOUS = 'playerPrevious';
+export const PLAYER_REWIND = 'playerRewind';
+export const PLAYER_STOP_FAST_FORWARD = 'playerStopFastForward';
+export const PLAYER_STOP_REWIND = 'playerStopRewind';
+export const PLAYER_STOPPED = 'playerStopped';
+export const PLAYER_TOGGLE_BUTTON = 'playerToggleButton';
+export const SHOW_OVERLAY = 'showOverlay';

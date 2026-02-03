@@ -1,7 +1,6 @@
-console.info('🔨 Loading movies from mocks...');
-window.Mocks = window.Mocks || {};
+import type { Movie } from '@types';
 
-window.Mocks.moviesList = [
+export const moviesList: Movie[] = [
   { name: 'Avatar' },
   { name: 'Avengers' },
   { name: 'Fight Club' },
@@ -16,9 +15,9 @@ window.Mocks.moviesList = [
   { name: 'Nemo' },
   { name: 'Pulp Fiction' },
   { name: 'Star Wars' },
-  { name: 'Titanic' },
   { name: 'The Dark Knight' },
   { name: 'The Lord of the Rings' },
+  { name: 'Titanic' },
   { name: 'Toy Story' },
   { name: 'WALL-E' },
 ];

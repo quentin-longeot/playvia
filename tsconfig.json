@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "lib": ["ES2015", "DOM", "DOM.Iterable"],
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@modules/*": ["src/modules/*"],
+      "@mocks/*": ["mocks/*"],
+      "@types": ["types/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "types/**/*.d.ts", "mocks/**/*.ts", "types/index.ts"],
+  "exclude": ["node_modules", "dist"]
+}

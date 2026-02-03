@@ -11,7 +11,7 @@ It provides a clean and intuitive interface to browse and play video content sto
 
 ## Table of content
  - [Main Features](#main-features)
- - [Screen captures](#screen-capture)
+ - [Screen captures](#screen-captures)
  - [How to run the application](#how-to-run-the-application)
    - [On Samsung TV](#on-samsung-tv)
    - [On your local machine](#on-your-local-machine)
