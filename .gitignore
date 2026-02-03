@@ -5,6 +5,9 @@
 # Node.js
 node_modules/
 
+# Environment variables
+.env
+
 # Build output
 dist/mocks
 dist/bundle.js

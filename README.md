@@ -16,6 +16,7 @@ It provides a clean and intuitive interface to browse and play video content sto
  - [How to run the application](#how-to-run-the-application)
    - [On Samsung TV](#on-samsung-tv)
    - [On your local machine](#on-your-local-machine)
+ - [Environment Configuration](#environment-configuration)
  - [Project components](#project-components)
    - [AVPlayer](#avplayer)
    - [Card](#card)
@@ -105,6 +106,36 @@ It provides a clean and intuitive interface to browse and play video content sto
    - The mocked images are located in `mocks/assetsMocked/`
    - Video playback uses the HTML5 Video Player instead of AVPlayer
    - All built files are output to the `dist` folder
+
+## Environment Configuration
+
+The project uses a `.env` file to manage configuration variables. A template file `.env.example` is provided in the repository.
+
+### Setup
+
+1. Copy the example file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` with your values
+
+### Environment Variables
+
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `MOVIES_FOLDER` | `string` | - | Name of the folder containing movies on the external USB drive. The app will scan this folder for video files. This variable can be empty if you are running the project locally. |
+| `PLAYER_NAME` | `'videoTag' \| 'avplayer'` | `videoTag` | Video player engine to use:<br/>• `videoTag`: HTML5 video player (for web browsers)<br/>• `avplayer`: Samsung Tizen AVPlayer (for TV) |
+| `MOCKED_FALLBACK_VIDEO_URL` | `string` | - | URL of a fallback video used when running in development mode without external storage. Should be a publicly accessible video URL. Some urls can be found on the HTML source code of [WikiFlix](https://wikiflix.toolforge.org/#/entry/244971) (a royalty-free online movie platform) if you check the source of the video tag. |
+
+### How it works
+
+Environment variables are injected at build time into the JavaScript bundle using esbuild's `define` feature. This means:
+- Variables are replaced with their actual values during compilation
+- No runtime overhead or security concerns (values are baked into the code)
+- You must rebuild (`npm run build`) after changing `.env` values
+
+**Example:** If you set `PLAYER_NAME=avplayer` in `.env`, all instances of `process.env.PLAYER_NAME` in your TypeScript code will be replaced with `"avplayer"` in the compiled JavaScript.
 
 ## Project components
 

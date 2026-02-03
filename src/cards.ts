@@ -12,7 +12,7 @@ const createCard = (movie: Movie, movieIndex: number): HTMLDivElement => {
 
   const img = document.createElement('img');
   const cleanedMovieName = cleanMovieName(movie.name);
-  img.src = './mocks/assetsMocked/' + cleanedMovieName + '.webp';
+  img.src = `./mocks/assetsMocked/${cleanedMovieName}.webp`;
   img.classList.add('card-image');
 
   const title = document.createElement('div');

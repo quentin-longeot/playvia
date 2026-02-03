@@ -37,7 +37,7 @@ export const externalStorage: ExternalStorageModule = {
               for (let i = 0; i < dirEntry.length; i++) {
                 const file = dirEntry[i];
 
-                if (file.name === 'Movies') {
+                if (file.name === process.env.MOVIES_FOLDER) {
                   file.listFiles((movies) => {
                     console.info('💾 Movies found in external storage:', movies);
                     externalStorage.externalStorageElements = (movies as unknown as Movie[])

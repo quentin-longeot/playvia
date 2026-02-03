@@ -1,6 +1,10 @@
 import * as esbuild from 'esbuild';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,6 +41,11 @@ const buildOptions = {
   format: 'iife',
   minify: true,
   plugins: [aliasPlugin],
+  define: {
+    'process.env.MOCKED_FALLBACK_VIDEO_URL': JSON.stringify(process.env.MOCKED_FALLBACK_VIDEO_URL || ''),
+    'process.env.MOVIES_FOLDER': JSON.stringify(process.env.MOVIES_FOLDER || ''),
+    'process.env.PLAYER_NAME': JSON.stringify(process.env.PLAYER_NAME || 'videoTag'),
+  },
 };
 
 if (isWatch) {

@@ -237,7 +237,7 @@ export const listeners: ListenersModule = {
     }
 
     const elementToPlay = externalStorage.externalStorageElements?.[index];
-    let url = './mocks/videos/long_video.mp4'; // Fallback URL
+    let url = process.env.MOCKED_FALLBACK_VIDEO_URL; // Fallback URL
     let customEvent: CustomEvent = new CustomEvent(CREATE_VIDEO_PLAYER, {
       detail: { url: url },
     });

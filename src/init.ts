@@ -43,8 +43,14 @@ function onExternalStorageCharged(): void {
 listeners.create();
 focusManager.create();
 overlay.create();
-avPlayer.create();
-videoPlayer.create();
+
+console.log('Using player:', process.env.PLAYER_NAME);
+
+if (process.env.PLAYER_NAME === 'avplayer') {
+  avPlayer.create();
+} else if (process.env.PLAYER_NAME === 'videoTag') {
+  videoPlayer.create();
+}
 
 window.addEventListener(EXTERNAL_STORAGE_CHARGED, onExternalStorageCharged);
 
