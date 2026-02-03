@@ -35,6 +35,7 @@ const buildOptions = {
   outfile: 'dist/bundle.js',
   target: 'es2015',
   format: 'iife',
+  minify: true,
   plugins: [aliasPlugin],
 };
 
