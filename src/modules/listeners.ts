@@ -1,5 +1,6 @@
 import {
   CREATE_AV_PLAYER,
+  CREATE_SHAKA_PLAYER,
   CREATE_VIDEO_PLAYER,
   PLAYER_FAST_FORWARD,
   PLAYER_KILL,
@@ -47,6 +48,7 @@ export const listeners: ListenersModule = {
   // VARIABLES
 
   isPlayerActive: false,
+  createPlayerEventName: CREATE_VIDEO_PLAYER,
   currentPlayingIndex: -1,
 
   // METHODS
@@ -189,6 +191,11 @@ export const listeners: ListenersModule = {
       listeners.isPlayerActive = true;
     });
 
+    window.addEventListener(CREATE_SHAKA_PLAYER, () => {
+      listeners.hideAppElement();
+      listeners.isPlayerActive = true;
+    });
+
     window.addEventListener(CREATE_VIDEO_PLAYER, () => {
       listeners.hideAppElement();
       listeners.isPlayerActive = true;
@@ -207,6 +214,14 @@ export const listeners: ListenersModule = {
     window.addEventListener(PLAYER_PREVIOUS, () => {
       listeners.playPreviousContent();
     });
+
+    if (process.env.PLAYER_NAME === 'avplayer') {
+      listeners.createPlayerEventName = CREATE_AV_PLAYER;
+    } else if (process.env.PLAYER_NAME === 'shakaplayer') {
+      listeners.createPlayerEventName = CREATE_SHAKA_PLAYER;
+    } else if (process.env.PLAYER_NAME === 'videotag') {
+      listeners.createPlayerEventName = CREATE_VIDEO_PLAYER;
+    }
 
     console.info('Listeners initialized');
   },
@@ -238,7 +253,7 @@ export const listeners: ListenersModule = {
 
     const elementToPlay = externalStorage.externalStorageElements?.[index];
     let url = process.env.MOCKED_FALLBACK_VIDEO_URL; // Fallback URL
-    let customEvent: CustomEvent = new CustomEvent(CREATE_VIDEO_PLAYER, {
+    let customEvent: CustomEvent = new CustomEvent(listeners.createPlayerEventName, {
       detail: { url: url },
     });
 

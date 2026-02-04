@@ -16,5 +16,8 @@
     "dotenv": "^17.2.3",
     "esbuild": "^0.24.0",
     "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "shaka-player": "^4.16.16"
   }
 }

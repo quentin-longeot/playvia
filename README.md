@@ -17,14 +17,14 @@ It provides a clean and intuitive interface to browse and play video content sto
    - [On Samsung TV](#on-samsung-tv)
    - [On your local machine](#on-your-local-machine)
  - [Environment Configuration](#environment-configuration)
- - [Project components](#project-components)
+ - [Project modules](#project-modules)
    - [AVPlayer](#avplayer)
-   - [Card](#card)
-   - [Cards](#cards)
    - [External Storage](#external-storage)
    - [Focus Manager](#focus-manager)
+   - [Listeners](#listeners)
    - [Overlay](#overlay)
-   - [VideoPlayer](#videoplayer)
+   - [Shaka Player](#shaka-player)
+   - [Video Player](#video-player)
  - [AI usage in this project](#ai-usage-in-this-project)
  - [Project origin](#project-origin)
    - [Why the name "Playvia"?](#why-the-name-playvia)
@@ -125,7 +125,7 @@ The project uses a `.env` file to manage configuration variables. A template fil
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
 | `MOVIES_FOLDER` | `string` | - | Name of the folder containing movies on the external USB drive. The app will scan this folder for video files. This variable can be empty if you are running the project locally. |
-| `PLAYER_NAME` | `'videoTag' \| 'avplayer'` | `videoTag` | Video player engine to use:<br/>• `videoTag`: HTML5 video player (for web browsers)<br/>• `avplayer`: Samsung Tizen AVPlayer (for TV) |
+| `PLAYER_NAME` | `'avplayer' \| 'shakaplayer' \| 'videotag'` | `videotag` | Video player engine to use:<br/>• `videotag`: HTML5 video player (for web browsers)<br/>• `avplayer`: Samsung Tizen AVPlayer (for TV) |
 | `MOCKED_FALLBACK_VIDEO_URL` | `string` | - | URL of a fallback video used when running in development mode without external storage. Should be a publicly accessible video URL. Some urls can be found on the HTML source code of [WikiFlix](https://wikiflix.toolforge.org/#/entry/244971) (a royalty-free online movie platform) if you check the source of the video tag. |
 
 ### How it works
@@ -137,51 +137,36 @@ Environment variables are injected at build time into the JavaScript bundle usin
 
 **Example:** If you set `PLAYER_NAME=avplayer` in `.env`, all instances of `process.env.PLAYER_NAME` in your TypeScript code will be replaced with `"avplayer"` in the compiled JavaScript.
 
-## Project components
+## Project modules
+
+The application is structured around independent TypeScript modules located in `src/modules/`. Each module handles a specific aspect of the application.
 
 ### AVPlayer
 
-The `AVPlayer` component ([src/components/AVPlayer.js](src/components/AVPlayer.js)) is a wrapper around Samsung's native Tizen AVPlay API. It provides:
+The `AVPlayer` module ([src/modules/avPlayer.ts](src/modules/avPlayer.ts)) is a wrapper around Samsung's native Tizen AVPlay API. It provides:
 
 - Video playback control (play, pause, stop)
 - Progressive seeking with acceleration (10s > 1min > 3min > 6min > 10min jumps based on hold duration)
-- Playback speed control (without audio preservation)
+- Playback speed control (1x, 1.25x, 1.5x, 1.75x, 2x without audio preservation)
+- 4K panel detection and optimization
 - Stream completion and error handling
 - Integration with the player overlay for time display and progress bar
 
-This player is used when content is loaded from external USB storage on a real Samsung TV.
-
-### Card
-
-The `Card` component ([src/components/Card.js](src/components/Card.js)) creates individual movie cards for the browsing interface. Each card displays:
-
-- A thumbnail image of the movie
-- The movie title
-
-Cards are designed to be fully navigable using directional buttons on a TV remote.
-
-### Cards
-
-The `Cards` component ([src/components/Cards.js](src/components/Cards.js)) is a container that manages the grid layout of movie cards. It:
-
-- Receives a list of movies from external storage (or mock)
-- Creates a `Card` component for each movie
-- Arranges cards in a responsive flex grid (5 cards per row)
-- Handles the insertion of cards into the DOM
+This player is used when `PLAYER_NAME=avplayer` is set in the environment configuration. It's optimized for Samsung Tizen TVs.
 
 ### External Storage
 
-The `externalStorage` module ([src/externalStorage.js](src/externalStorage.js)) handles file system access for external USB drives. It:
+The `externalStorage` module ([src/modules/externalStorage.ts](src/modules/externalStorage.ts)) handles file system access for external USB drives. It:
 
 - Detects mounted external storage devices using Tizen's filesystem API
-- Scans the `Movies` folder for video files (<= it will be updated)
-- Filters and sorts files alphabetically
+- Scans the folder specified by `MOVIES_FOLDER` environment variable for video files
+- Filters and sorts files alphabetically by name
 - Falls back to mocked data when running outside the Tizen environment
-- Dispatches events when storage content is loaded
+- Dispatches custom events when storage content is loaded
 
 ### Focus Manager
 
-The `focusManager` module ([src/focusManager.js](src/focusManager.js)) handles all navigation logic for TV remote controls. It manages:
+The `focusManager` module ([src/modules/focusManager.ts](src/modules/focusManager.ts)) handles all navigation logic for TV remote controls. It manages:
 
 - Horizontal navigation between cards and overlay buttons
 - Vertical navigation between card rows and between overlay bar/buttons
@@ -189,28 +174,56 @@ The `focusManager` module ([src/focusManager.js](src/focusManager.js)) handles a
 - Smooth scrolling to keep focused elements visible
 - Visual focus indicators on active elements
 
+This module is essential for TV remote control navigation and keyboard shortcuts.
+
+### Listeners
+
+The `listeners` module ([src/modules/listeners.ts](src/modules/listeners.ts)) coordinates user interactions and application events. It:
+
+- Manages keyboard and remote control input events
+- Handles play/pause, next/previous content navigation
+- Switches between different player implementations based on configuration
+- Manages the application state (browse mode vs player mode)
+- Dispatches appropriate player creation events
+
 ### Overlay
 
-The `Overlay` component ([src/components/Overlay.js](src/components/Overlay.js)) provides the player control interface that appears during video playback. Features include:
+The `overlay` module ([src/modules/overlay.ts](src/modules/overlay.ts)) provides the player control interface that appears during video playback. Features include:
 
 - Play/Pause toggle button
 - Previous/Next track buttons
-- Playback speed control button
+- Playback speed control button (1x, 1.25x, 1.5x, 1.75x, 2x)
 - Progress bar with current time and duration display
 - Auto-hide after 5 seconds of inactivity
-- SVG icons loaded dynamically for optimal performance and flexibility
+- SVG icons loaded dynamically for optimal performance
+- Keyboard and remote control integration
 
-### VideoPlayer
+### Shaka Player
 
-The `VideoPlayer` component ([src/components/VideoPlayer.js](src/components/VideoPlayer.js)) wraps the standard HTML5 `<video>` element. It provides:
+The `shakaPlayer` module ([src/modules/shakaPlayer.ts](src/modules/shakaPlayer.ts)) integrates Google's Shaka Player library for adaptive streaming. It provides:
+
+- Support for DASH and HLS streaming protocols
+- Video playback controls (play, pause, stop)
+- Progressive seeking identical to other players
+- Playback speed control (with audio preservation)
+- Adaptive bitrate streaming
+- DRM support (optional)
+- Stream completion and error handling
+- Integration with the player overlay
+
+This player is used when `PLAYER_NAME=shakaplayer` is set. It's ideal for streaming content from URLs.
+
+### Video Player
+
+The `videoPlayer` module ([src/modules/videoPlayer.ts](src/modules/videoPlayer.ts)) wraps the standard HTML5 `<video>` element. It provides:
 
 - Video playback controls (play, pause, stop)
-- Progressive seeking identical to [AVPlayer](#avplayer)
-- Playback speed control (with audio preservation)
+- Progressive seeking identical to AVPlayer
+- Playback speed control (1x, 1.25x, 1.5x, 1.75x, 2x with audio preservation)
 - Stream completion and error handling
 - Integration with the player overlay for time display and progress bar
 
-This player is used when running the application in a web browser or when playing non-file content.
+This player is used when `PLAYER_NAME=videotag` is set. It's ideal for web browser development and testing.
 
 ## AI usage in this project
 
@@ -242,8 +255,9 @@ The name "Playvia" reflects one of the project's technical objectives: integrati
 
 The following players are integrated into Playvia:
 
-- **HTML5 Video Player**: Using the native `<video>` tag for broad compatibility
-- **AVPlayer (Tizen)**: Samsung's native player embedded in the Tizen OS, optimized for TV hardware
+- **HTML5 Video Player**: Using the native `<video>` tag for broad compatibility and web development
+- **AVPlayer (Tizen)**: Samsung's native player embedded in the Tizen OS, optimized for TV hardware and local file playback
+- **Shaka Player**: Google's open-source player for adaptive streaming
 
 ### Why Samsung 2017?
 

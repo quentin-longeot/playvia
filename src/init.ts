@@ -8,6 +8,7 @@ import { externalStorage } from '@/modules/externalStorage';
 import { focusManager } from '@/modules/focusManager';
 import { listeners } from '@/modules/listeners';
 import { overlay } from '@/modules/overlay';
+import { shakaPlayer } from '@/modules/shakaPlayer';
 import { videoPlayer } from '@/modules/videoPlayer';
 
 /**
@@ -48,8 +49,10 @@ console.log('Using player:', process.env.PLAYER_NAME);
 
 if (process.env.PLAYER_NAME === 'avplayer') {
   avPlayer.create();
-} else if (process.env.PLAYER_NAME === 'videoTag') {
+} else if (process.env.PLAYER_NAME === 'videotag') {
   videoPlayer.create();
+} else if (process.env.PLAYER_NAME === 'shakaplayer') {
+  shakaPlayer.create();
 }
 
 window.addEventListener(EXTERNAL_STORAGE_CHARGED, onExternalStorageCharged);

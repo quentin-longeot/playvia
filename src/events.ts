@@ -1,4 +1,5 @@
 export const CREATE_AV_PLAYER = 'createAVPlayer';
+export const CREATE_SHAKA_PLAYER = 'createShakaPlayer';
 export const CREATE_VIDEO_PLAYER = 'createVideoPlayer';
 export const EXTERNAL_STORAGE_CHARGED = 'externalStorageCharged';
 export const FOCUS_ELEMENT = 'focusElement';

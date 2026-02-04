@@ -44,7 +44,7 @@ const buildOptions = {
   define: {
     'process.env.MOCKED_FALLBACK_VIDEO_URL': JSON.stringify(process.env.MOCKED_FALLBACK_VIDEO_URL || ''),
     'process.env.MOVIES_FOLDER': JSON.stringify(process.env.MOVIES_FOLDER || ''),
-    'process.env.PLAYER_NAME': JSON.stringify(process.env.PLAYER_NAME || 'videoTag'),
+    'process.env.PLAYER_NAME': JSON.stringify(process.env.PLAYER_NAME || 'videotag'),
   },
 };
 
