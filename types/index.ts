@@ -1,3 +1,5 @@
+import shaka from 'shaka-player/dist/shaka-player.ui';
+
 export type CreateVideoPlayerEventDetail = {
   url: string;
 }
@@ -113,6 +115,7 @@ export interface FocusManagerModule {
  */
 export interface ListenersModule {
   create: () => void;
+  createPlayerEventName: string;
   currentPlayingIndex: number;
   hideAppElement: () => void;
   isPlayerActive: boolean;
@@ -133,6 +136,38 @@ export interface OverlayModule {
   initButtons: () => void;
   resetTimeout: () => void;
   show: (shouldFocus?: boolean) => void;
+}
+
+/**
+ * Shaka player module interface
+ */
+export interface ShakaPlayerModule {
+  changeSpeed: (event: CustomEvent<number>) => void;
+  currentSeekDirection: 'forward' | 'backward' | null;
+  create: () => void;
+  currentSpeed: number;
+  fastForward: () => void;
+  getCurrentJumpAmount: () => number;
+  getState: () => PlayerState;
+  initialize: (params: CreateVideoPlayerEventDetail) => Promise<void>;
+  onLoadedMetadata: () => void;
+  onPlayerEnded: (event: Event) => void;
+  onPlayerError: (event: Event) => void;
+  onTimeUpdate: () => void;
+  pause: () => void;
+  performSeek: (direction: 'forward' | 'backward') => void;
+  play: () => void;
+  playPause: () => void;
+  player: shaka.Player | null;
+  rewind: () => void;
+  seekInterval: ReturnType<typeof setInterval> | null;
+  seekStartTime: number | null;
+  startSeek: (direction: 'forward' | 'backward') => void;
+  stop: () => void;
+  stopFastForward: () => void;
+  stopRewind: () => void;
+  stopSeek: () => void;
+  videoElement: HTMLVideoElement | null;
 }
 
 /**

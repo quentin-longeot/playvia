@@ -1,5 +1,6 @@
 import {
   CREATE_AV_PLAYER,
+  CREATE_SHAKA_PLAYER,
   CREATE_VIDEO_PLAYER,
   PLAYER_PREVIOUS,
   PLAYER_PLAY_PAUSE,
@@ -40,6 +41,10 @@ export const overlay: OverlayModule = {
    */
   create: (): void => {
     window.addEventListener(CREATE_AV_PLAYER, () => {
+      overlay.show(true);
+    });
+
+    window.addEventListener(CREATE_SHAKA_PLAYER, () => {
       overlay.show(true);
     });
 
