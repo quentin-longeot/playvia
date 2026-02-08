@@ -1,6 +1,6 @@
 import { displayCards } from '@/cards';
 import {
-  FOCUS_ELEMENT,
+  FOCUS_CARD_ELEMENT,
   EXTERNAL_STORAGE_CHARGED,
 } from '@/events';
 import { avPlayer } from '@/modules/avPlayer';
@@ -30,7 +30,7 @@ function onExternalStorageCharged(): void {
   const firstElement = document.getElementById('movie-card-0');
 
   if (firstElement) {
-    const customEvent = new CustomEvent(FOCUS_ELEMENT, { detail: firstElement });
+    const customEvent = new CustomEvent(FOCUS_CARD_ELEMENT, { detail: firstElement });
     window.dispatchEvent(customEvent);
   } else {
     console.error('None elements are focusable.');

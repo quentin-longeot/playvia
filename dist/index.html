@@ -17,30 +17,44 @@
 
 	<body>
 		<main>
-			<h1>
-				<img alt="Playvia logo" id="logo" src="./assets/logo.svg" />
-			</h1>
+			<h1><img alt="Playvia logo" id="logo" src="./assets/logo.svg" /></h1>
+
+			<!-- The app container, used to display the app list -->
 			<div id="app"></div>
+
+			<!-- The AV Player object tag -->
 			<object id="av-player" type="application/avplayer"></object>
-			<video autoplay id="video-player" style="background-color: black; display: none; height: 100%; left: 0; position: absolute; top: 0; width: 100%;"></video>
 
-			<div id="player-overlay">
-				<div id="overlay-container">
-					<div id="overlay-bar-container" tabindex="4">
-						<time class="overlay-time" id="overlay-time-current">00:00</time>
+			<!-- The video/shaka player tag -->
+			<video autoplay id="video-player"></video>
 
-						<progress id="overlay-bar" max="100" value="0"></progress>
-						<div id="overlay-bar-time"></div>
+			<!-- The player overlay, used to display the player controls -->
+			<div id="overlay">
+				<div class="overlay__floating-button" id="overlay__previous-button" tabindex="3">
+					Lancer le contenu précédent
+				</div>
+				<div class="overlay__floating-button" id="overlay__next-button" tabindex="4">
+					Lancer le contenu suivant
+				</div>
+				<div id="overlay__global-container">
+					<div id="overlay__top-container">
+						<div id="overlay__title"></div>
 
-						<time class="overlay-time" id="overlay-time-duration">00:00</time>
+						<div id="overlay__actions-container">
+							<div class="overlay__action-button" data-src="./assets/pause.svg" id="overlay__action-button--pause" tabindex="0"></div>
+							<div class="overlay__action-button" data-src="./assets/play.svg" id="overlay__action-button--play" style="display: none" tabindex="0"></div>
+							<div class="overlay__action-button" data-src="./assets/speed.svg" id="overlay__action-button--speed" tabindex="1"></div>
+							<div id="overlay__speed-indicator">1x</div>
+						</div>
 					</div>
 
-					<div id="overlay-actions-container">
-						<div class="overlay-button" data-src="./assets/previous.svg" id="previous-button" tabindex="0"></div>
-						<div class="overlay-button" data-src="./assets/pause.svg" id="pause-button" tabindex="1"></div>
-						<div class="overlay-button" data-src="./assets/play.svg" id="play-button" style="display: none" tabindex="1"></div>
-						<div class="overlay-button" data-src="./assets/next.svg" id="next-button" tabindex="2"></div>
-						<div class="overlay-button" data-src="./assets/speed.svg" id="speed-button" tabindex="3"></div>
+					<div id="overlay__bar-container" tabindex="2">
+						<time class="overlay__time" id="overlay__time--current">00:00</time>
+
+						<progress id="overlay__bar" max="100" value="0"></progress>
+						<div id="overlay__bar--time"></div>
+
+						<time class="overlay__time" id="overlay__time--duration">00:00</time>
 					</div>
 				</div>
 			</div>

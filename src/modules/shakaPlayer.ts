@@ -8,8 +8,9 @@ import {
   PLAYER_STOP_FAST_FORWARD,
   PLAYER_STOP_REWIND,
   PLAYER_STOPPED,
+  SPEED_UPDATED,
 } from '@/events';
-import { formatTime } from '@/helpers';
+import { formatTime, manageFloatingButtonsVisibility } from '@/helpers';
 import type {
   CreateVideoPlayerEventDetail,
   PlayerState,
@@ -47,6 +48,7 @@ export const shakaPlayer: ShakaPlayerModule = {
 
   currentSeekDirection: null,
   currentSpeed: 1,
+  hasDispatchedAlmostFinished: false,
   player: null,
   seekInterval: null,
   seekStartTime: null,
@@ -61,9 +63,8 @@ export const shakaPlayer: ShakaPlayerModule = {
     window.addEventListener(
       CREATE_SHAKA_PLAYER,
       ((event: CustomEvent<CreateVideoPlayerEventDetail>) => {
-        shakaPlayer.videoElement = document.getElementById(
-          VIDEO_CLASS_NAME
-        ) as HTMLVideoElement | null;
+        shakaPlayer.videoElement =
+          document.getElementById(VIDEO_CLASS_NAME) as HTMLVideoElement | null;
 
         if (!shakaPlayer.videoElement) {
           console.error('🕵️‍♂️ Shaka Player element not found');
@@ -99,7 +100,6 @@ export const shakaPlayer: ShakaPlayerModule = {
     shakaPlayer.player = new shaka.Player();
     await shakaPlayer.player.attach(videoElement);
 
-    
     // Configure Shaka Player
     shakaPlayer.player.configure({
       streaming: {
@@ -241,6 +241,8 @@ export const shakaPlayer: ShakaPlayerModule = {
 
     videoElement.playbackRate = newSpeed;
     shakaPlayer.currentSpeed = newSpeed;
+
+    window.dispatchEvent(new CustomEvent(SPEED_UPDATED, { detail: { newSpeed } }));
     console.info('⏱️ Playback speed changed to:', newSpeed + 'x');
   },
 
@@ -302,7 +304,9 @@ export const shakaPlayer: ShakaPlayerModule = {
 
     videoElement.pause();
     videoElement.currentTime = 0;
+    videoElement.playbackRate = 1;
     shakaPlayer.currentSpeed = 1;
+    shakaPlayer.hasDispatchedAlmostFinished = false;
 
     // Destroy Shaka Player instance
     if (player) {
@@ -332,11 +336,8 @@ export const shakaPlayer: ShakaPlayerModule = {
     window.removeEventListener(PLAYER_STOP_REWIND, shakaPlayer.stopRewind);
 
     shakaPlayer.stopSeek();
-    const videoPlayerElement = document.getElementById(VIDEO_CLASS_NAME);
 
-    if (videoPlayerElement) {
-      videoPlayerElement.style.display = 'none';
-    }
+    videoElement.style.display = 'none';
 
     const customEvent = new CustomEvent(PLAYER_STOPPED);
     window.dispatchEvent(customEvent);
@@ -433,18 +434,23 @@ export const shakaPlayer: ShakaPlayerModule = {
    * Handle loaded metadata event to set duration
    */
   onLoadedMetadata: (): void => {
-    const currentTimeElement = document.getElementById('overlay-time-current');
-    const durationElement = document.getElementById('overlay-time-duration');
-    const progressBar = document.getElementById('overlay-bar') as HTMLProgressElement | null;
+    const currentTimeElement = document.getElementById('overlay__time--current');
+    const durationElement = document.getElementById('overlay__time--duration');
+    const progressBar = document.getElementById('overlay__bar') as HTMLProgressElement | null;
 
-    if (durationElement && shakaPlayer.videoElement) {
-      durationElement.textContent = formatTime(shakaPlayer.videoElement.duration);
-    }
-    if (currentTimeElement) {
-      currentTimeElement.textContent = formatTime(0);
-    }
-    if (progressBar) {
-      progressBar.value = 0;
+    if (shakaPlayer.videoElement) {
+      if (durationElement && shakaPlayer.videoElement) {
+        durationElement.textContent = formatTime(shakaPlayer.videoElement.duration);
+      }
+      if (currentTimeElement) {
+        currentTimeElement.textContent = formatTime(0);
+      }
+      if (progressBar) {
+        progressBar.value = 0;
+      }
+
+      shakaPlayer.videoElement.playbackRate = AVAILABLE_SPEEDS[0];
+      shakaPlayer.currentSpeed = AVAILABLE_SPEEDS[0];
     }
   },
 
@@ -452,9 +458,9 @@ export const shakaPlayer: ShakaPlayerModule = {
    * Handle time update event from video element
    */
   onTimeUpdate: (): void => {
-    const currentTimeElement = document.getElementById('overlay-time-current');
-    const progressBar = document.getElementById('overlay-bar') as HTMLProgressElement | null;
-    const progressBarIndicator = document.getElementById('overlay-bar-time');
+    const currentTimeElement = document.getElementById('overlay__time--current');
+    const progressBar = document.getElementById('overlay__bar') as HTMLProgressElement | null;
+    const progressBarIndicator = document.getElementById('overlay__bar--time');
 
     if (currentTimeElement && shakaPlayer.videoElement) {
       currentTimeElement.textContent = formatTime(shakaPlayer.videoElement.currentTime);
@@ -464,6 +470,9 @@ export const shakaPlayer: ShakaPlayerModule = {
       const percentage =
         (shakaPlayer.videoElement.currentTime / shakaPlayer.videoElement.duration) * 100;
       progressBar.value = percentage;
+
+      shakaPlayer.hasDispatchedAlmostFinished =
+        manageFloatingButtonsVisibility(percentage, shakaPlayer.hasDispatchedAlmostFinished);
 
       if (progressBarIndicator && progressBar.offsetWidth) {
         const barWidth = progressBar.offsetWidth;

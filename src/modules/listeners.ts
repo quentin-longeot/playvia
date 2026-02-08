@@ -2,6 +2,17 @@ import {
   CREATE_AV_PLAYER,
   CREATE_SHAKA_PLAYER,
   CREATE_VIDEO_PLAYER,
+  FLOATING_BUTTONS_FOCUSED,
+  FOCUS_BAR,
+  FOCUS_BUTTON,
+  FOCUS_FLOATING_BUTTONS,
+  FOCUS_NEXT_BUTTON,
+  FOCUS_NEXT_CARD,
+  FOCUS_NEXT_LINE_CARD,
+  FOCUS_PREVIOUS_BUTTON,
+  FOCUS_PREVIOUS_CARD,
+  FOCUS_PREVIOUS_LINE_CARD,
+  OVERLAY_FLOATING_BUTTON_HIDDEN,
   PLAYER_FAST_FORWARD,
   PLAYER_KILL,
   PLAYER_NEXT,
@@ -10,11 +21,12 @@ import {
   PLAYER_STOP_FAST_FORWARD,
   PLAYER_STOP_REWIND,
   PLAYER_STOPPED,
-  PLAYER_TOGGLE_BUTTON,
   SHOW_OVERLAY,
+  SHOW_PREVIOUS_BUTTON,
+  TOGGLE_BUTTON,
+  TOGGLE_FLOATING_BUTTON,
 } from '@/events';
 import { externalStorage } from '@/modules/externalStorage';
-import { focusManager } from '@/modules/focusManager';
 import type { ListenersModule } from '@types';
 
 // TYPES
@@ -47,9 +59,12 @@ const KEY_CODES: KeyCodes = {
 export const listeners: ListenersModule = {
   // VARIABLES
 
-  isPlayerActive: false,
   createPlayerEventName: CREATE_VIDEO_PLAYER,
   currentPlayingIndex: -1,
+  isPlayerActive: false,
+  isOverlayActionButtonsFocused: true,
+  isOverlayBarFocused: false,
+  isOverlayFloatingButtonsFocused: false,
 
   // METHODS
 
@@ -98,37 +113,63 @@ export const listeners: ListenersModule = {
 
         switch (event.keyCode) {
           case KEY_CODES.right:
+            let customRightEventName = FOCUS_NEXT_CARD;
             if (listeners.isPlayerActive) {
-              focusManager.focusNextButton();
-              break;
+              customRightEventName = FOCUS_NEXT_BUTTON
             }
-            focusManager.focusNextCard();
+
+            window.dispatchEvent(new CustomEvent(customRightEventName));
             break;
           case KEY_CODES.left:
+            let customLeftEventName = FOCUS_PREVIOUS_CARD;
             if (listeners.isPlayerActive) {
-              focusManager.focusPreviousButton();
-              break;
+              customLeftEventName = FOCUS_PREVIOUS_BUTTON
             }
-            focusManager.focusPreviousCard();
+
+            window.dispatchEvent(new CustomEvent(customLeftEventName));
             break;
           case KEY_CODES.up:
+            let customUpEventName = FOCUS_PREVIOUS_LINE_CARD;
+
             if (listeners.isPlayerActive) {
-              focusManager.focusBar();
-              break;
+              if (listeners.isOverlayActionButtonsFocused) {
+                customUpEventName = FOCUS_FLOATING_BUTTONS;
+
+              } else if (listeners.isOverlayBarFocused) {
+                customUpEventName = FOCUS_BUTTON;
+                listeners.isOverlayFloatingButtonsFocused = false;
+                listeners.isOverlayActionButtonsFocused = true;
+              }
             }
-            focusManager.focusPreviousLineCard();
+
+            window.dispatchEvent(new CustomEvent(customUpEventName));
             break;
           case KEY_CODES.down:
+            let customDownEventName = FOCUS_NEXT_LINE_CARD;
+
             if (listeners.isPlayerActive) {
-              focusManager.focusButtons();
-              break;
+              if (listeners.isOverlayActionButtonsFocused) {
+                customDownEventName = FOCUS_BAR;
+                listeners.isOverlayBarFocused = true;
+                listeners.isOverlayActionButtonsFocused = false;
+              } else if (listeners.isOverlayFloatingButtonsFocused) {
+                customDownEventName = FOCUS_BUTTON;
+                listeners.isOverlayFloatingButtonsFocused = false;
+                listeners.isOverlayActionButtonsFocused = true;
+              }
             }
-            focusManager.focusNextLineCard();
+
+            window.dispatchEvent(new CustomEvent(customDownEventName));
             break;
           case KEY_CODES.enter:
             if (listeners.isPlayerActive) {
-              const customEvent = new CustomEvent(PLAYER_TOGGLE_BUTTON);
-              window.dispatchEvent(customEvent);
+              if (listeners.isOverlayActionButtonsFocused) {
+                const customEvent = new CustomEvent(TOGGLE_BUTTON);
+                window.dispatchEvent(customEvent);
+              } else if (listeners.isOverlayFloatingButtonsFocused) {
+                const customEvent = new CustomEvent(TOGGLE_FLOATING_BUTTON);
+                window.dispatchEvent(customEvent);
+              }
             } else {
               const activeElement = document.activeElement as HTMLElement;
               const elementToPlayIndex = parseInt(activeElement.id.split('movie-card-')[1]);
@@ -201,19 +242,31 @@ export const listeners: ListenersModule = {
       listeners.isPlayerActive = true;
     });
 
+    window.addEventListener(FLOATING_BUTTONS_FOCUSED, () => {
+      listeners.isOverlayFloatingButtonsFocused = true;
+      listeners.isOverlayActionButtonsFocused = false;
+    });
+
+    window.addEventListener(OVERLAY_FLOATING_BUTTON_HIDDEN, () => {
+      const customEvent = new CustomEvent(FOCUS_BUTTON, {
+        detail: document.getElementById('overlay__action-button--play')?.style.display === 'none'
+          ? 'overlay__action-button--pause'
+          : 'overlay__action-button--play',
+      });
+      window.dispatchEvent(customEvent);
+      listeners.isOverlayFloatingButtonsFocused = false;
+      listeners.isOverlayActionButtonsFocused = true;
+    });
+
     window.addEventListener(PLAYER_STOPPED, () => {
       listeners.showAppElement();
       listeners.currentPlayingIndex = -1;
       listeners.isPlayerActive = false;
     });
 
-    window.addEventListener(PLAYER_NEXT, () => {
-      listeners.playNextContent();
-    });
+    window.addEventListener(PLAYER_NEXT, listeners.playNextContent);
 
-    window.addEventListener(PLAYER_PREVIOUS, () => {
-      listeners.playPreviousContent();
-    });
+    window.addEventListener(PLAYER_PREVIOUS, listeners.playPreviousContent);
 
     if (process.env.PLAYER_NAME === 'avplayer') {
       listeners.createPlayerEventName = CREATE_AV_PLAYER;
@@ -244,6 +297,9 @@ export const listeners: ListenersModule = {
    */
   playContentWithIndex: (index: number): void => {
     const totalElements = externalStorage.externalStorageElements?.length || 0;
+    const elementToPlay = externalStorage.externalStorageElements?.[index];
+    let url = process.env.MOCKED_FALLBACK_VIDEO_URL; // Fallback URL
+    const overlayTitleElement = document.getElementById('overlay__title');
 
     // Boundary checks
     if (index < 0 || index >= totalElements) {
@@ -251,19 +307,21 @@ export const listeners: ListenersModule = {
       return;
     }
 
-    const elementToPlay = externalStorage.externalStorageElements?.[index];
-    let url = process.env.MOCKED_FALLBACK_VIDEO_URL; // Fallback URL
-    let customEvent: CustomEvent = new CustomEvent(listeners.createPlayerEventName, {
+    if (overlayTitleElement) {
+      overlayTitleElement.textContent = elementToPlay?.name || 'Unknown Title';
+    }
+
+    if (elementToPlay?.isFile && elementToPlay?.toURI) {
+      url = elementToPlay.toURI();
+    }
+
+    const customEvent: CustomEvent = new CustomEvent(listeners.createPlayerEventName, {
       detail: { url: url },
     });
 
-    if (elementToPlay && elementToPlay.isFile && elementToPlay.toURI) {
-      url = elementToPlay.toURI();
-      customEvent = new CustomEvent(CREATE_AV_PLAYER, { detail: { url: url } });
-    }
-
     listeners.currentPlayingIndex = index;
     window.dispatchEvent(customEvent);
+    window.dispatchEvent(new CustomEvent(SHOW_PREVIOUS_BUTTON));
   },
 
   /**

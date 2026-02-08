@@ -1,9 +1,5 @@
 /* Global selectors */
 
-@keyframes monAnimation {
-  /* ici un scénario d'animation */
-}
-
 :focus {
   outline: none;
 }
@@ -59,10 +55,6 @@ main {
   margin: 0 134px;
 }
 
-#player-overlay {
-  display: none;
-}
-
 #logo {
   height: 70px;
   margin-top: 32px;
@@ -70,58 +62,74 @@ main {
   width: auto;
 }
 
-#overlay-actions-container {
+#overlay {
+  display: none;
+}
+
+#overlay__action-button--pause,
+#overlay__action-button--play {
+  margin-right: 16px;
+  max-width: 40px;
+}
+
+#overlay__action-button--speed {
+  margin-right: 8px;
+  max-width: 28px;
+}
+
+#overlay__actions-container {
+  align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: center;
-  margin-top: 16px;
+  width: 202px;
 }
 
-#overlay-bar {
+#overlay__bar {
   -webkit-appearance: none;
   border-radius: 8px;
   height: 6px;
-  width: calc(100% - 160px);
+  width: calc(100% - 96px);
 }
 
-#overlay-bar::-webkit-progress-bar {
+#overlay__bar::-webkit-progress-bar {
   /* Progress background */
   background-color: #FFFFFF;
   border-radius: 8px;
 }
 
-#overlay-bar::-webkit-progress-value {
+#overlay__bar::-webkit-progress-value {
   /* Progress value */
   background-color: #D12E26;
   border-radius: 8px;
 }
 
-#overlay-bar-container {
+#overlay__bar-container {
   align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   position: relative;
-  width: calc(100% - 120px);
+  width: calc(100% - 96px);
 }
 
-#overlay-bar-container:focus #overlay-bar {
+#overlay__bar-container:focus #overlay__bar {
   height: 8px;
 }
 
-#overlay-bar-container:focus #overlay-bar-time::after {
-  height: 20px;
-  width: 20px;
-}
-
-#overlay-bar-container:focus #overlay-bar::-webkit-progress-value {
+#overlay__bar-container:focus #overlay__bar::-webkit-progress-value {
   /* Progress background on focus */
   background-color: #D12E26;
   border-radius: 8px;
   height: 8px;
 }
 
-#overlay-bar-time {
+#overlay__bar-container:focus #overlay__bar--time::after {
+  height: 20px;
+  width: 20px;
+}
+
+#overlay__bar--time {
   position: absolute;
   top: 50%;
   left: 80px;
@@ -129,7 +137,7 @@ main {
   pointer-events: none;
 }
 
-#overlay-bar-time::after {
+#overlay__bar--time::after {
   background-color: #D12E26;
   border-radius: 50%;
   content: '';
@@ -138,7 +146,7 @@ main {
   width: 0;
 }
 
-#overlay-container {
+#overlay__global-container {
   align-items: center;
   background-color: rgba(0, 0, 0, 0.4);
   bottom: 0;
@@ -148,7 +156,51 @@ main {
   height: 150px;
   justify-content: center;
   left: 0;
+  padding-left: 48px;
+  padding-right: 48px;
   position: absolute;
+  width: calc(100% - 96px);
+}
+
+#overlay__speed-indicator {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: right;
+  min-width: 60px;
+}
+
+#overlay__time--current {
+  text-align: left;
+}
+
+#overlay__time--duration {
+  text-align: right;
+}
+
+#overlay__title {
+  font-size: 32px;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#overlay__top-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  height: 64px;
+  justify-content: space-between;
+  width: calc(100% - 96px);
+}
+
+#video-player {
+  background-color: black;
+  display: none;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
   width: 100%;
 }
 
@@ -173,52 +225,75 @@ main {
   width: 286px;
 }
 
-.card:focus .card-image {
+.card:focus .card__image {
   transform: scale(1.1);
   transition: transform 0.3s ease-in-out;
   border: solid 4px #FFFFFF;
 }
 
-.card:focus .card-title {
+.card:focus .card__title {
   color: #FFFFFF;
   font-weight: bold;
 }
 
-.card-image {
+.card__image {
   width: 280px;
   height: 376px;
   object-fit: cover;
   border-radius: 16px;
 }
 
-.card-title {
+.card__title {
   color: white;
   margin-top: 24px;
   font-size: 20px;
   width: 286px;
 }
 
-.overlay-button {
+.overlay__action-button {
   height: 40px;
-  margin-left: 40px;
-  margin-right: 40px;
-  width: 40px;
+  padding: 8px;
 }
 
-.overlay-button path, .overlay-button polygon {
-  fill: #FFFFFF;
-}
-
-.overlay-button:focus path, .overlay-button:focus polygon {
+.overlay__action-button:focus path {
   fill: #D12E26;
 }
 
-.overlay-button svg {
+.overlay__action-button path, .overlay__action-button polygon {
+  fill: #FFFFFF;
+}
+
+.overlay__action-button svg {
   height: 100%;
   width: 100%;
 }
 
-.overlay-time {
-  text-align: center;
+#overlay__next-button {
+  right: 48px;
+}
+
+#overlay__previous-button {
+  left: 48px;
+}
+
+.overlay__floating-button {
+  background-color: #0E1219;
+  border-radius: 8px;
+  bottom: 166px;
+  color: white;
+  display: none;
+  font-size: 20px;
+  padding-bottom: 24px;
+  padding-left: 48px;
+  padding-right: 48px;
+  padding-top: 24px;
+  position: absolute;
+}
+
+.overlay__floating-button:focus {
+  background-color: #D12E26;
+}
+
+.overlay__time {
   width: 80px;
 }

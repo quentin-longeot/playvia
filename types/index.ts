@@ -29,11 +29,9 @@ export interface Movie {
  * Overlay button IDs
  */
 export type OverlayButtonId =
-  | 'previous-button'
-  | 'play-button'
-  | 'pause-button'
-  | 'next-button'
-  | 'speed-button';
+  | 'overlay__action-button--pause'
+  | 'overlay__action-button--play'
+  | 'overlay__action-button--speed';
 
 /**
  * Player state enum shared between AVPlayer and VideoPlayer
@@ -62,6 +60,7 @@ export interface AVPlayerModule {
   fastForward: () => void;
   getCurrentJumpAmount: () => number;
   getState: () => PlayerState;
+  hasDispatchedAlmostFinished: boolean;
   initialize: (params: CreateVideoPlayerEventDetail) => void;
   onLoadedMetadata: () => void;
   onTimeUpdate: () => void;
@@ -98,7 +97,8 @@ export interface FocusManagerModule {
   focusButtons: () => void;
   focusButton: (params: FocusCardParams) => void;
   focusCard: (params: FocusCardParams) => void;
-  focusElement: (element: HTMLElement, updateLastFocusedCard?: boolean) => void;
+  focusCardElement: (element: HTMLElement, updateLastFocusedCard?: boolean) => void;
+  focusFloatingButtons: () => void;
   focusNextButton: () => void;
   focusNextCard: () => void;
   focusNextLineCard: () => void;
@@ -118,6 +118,9 @@ export interface ListenersModule {
   createPlayerEventName: string;
   currentPlayingIndex: number;
   hideAppElement: () => void;
+  isOverlayActionButtonsFocused: boolean;
+  isOverlayBarFocused: boolean;
+  isOverlayFloatingButtonsFocused: boolean;
   isPlayerActive: boolean;
   playContentWithIndex: (index: number) => void;
   playNextContent: () => void;
@@ -132,10 +135,14 @@ export interface OverlayModule {
   create: () => void;
   hideTimeout: ReturnType<typeof setTimeout> | null;
   lastFocusedButtonId: OverlayButtonId;
+  handlePlayerCreation: () => void;
+  handleSpeedUpdated: (event: CustomEvent<number>) => void;
   hide: () => void;
   initButtons: () => void;
   resetTimeout: () => void;
   show: (shouldFocus?: boolean) => void;
+  showPreviousButton: () => void;
+  showNextButton: () => void;
 }
 
 /**
@@ -149,6 +156,7 @@ export interface ShakaPlayerModule {
   fastForward: () => void;
   getCurrentJumpAmount: () => number;
   getState: () => PlayerState;
+  hasDispatchedAlmostFinished: boolean;
   initialize: (params: CreateVideoPlayerEventDetail) => Promise<void>;
   onLoadedMetadata: () => void;
   onPlayerEnded: (event: Event) => void;
@@ -181,6 +189,7 @@ export interface VideoPlayerModule {
   fastForward: () => void;
   getCurrentJumpAmount: () => number;
   getState: () => PlayerState;
+  hasDispatchedAlmostFinished: boolean;
   initialize: (params: CreateVideoPlayerEventDetail) => void;
   onLoadedMetadata: () => void;
   onPlayerEnded: (event: Event) => void;

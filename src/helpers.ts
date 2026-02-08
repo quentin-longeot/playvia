@@ -1,3 +1,5 @@
+import { SHOW_NEXT_BUTTON } from "./events";
+
 interface ScrollContext {
   startTime: number;
   startY: number;
@@ -31,6 +33,22 @@ export const formatTime = (seconds: number): string => {
 
   return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
 }
+
+/**
+ * Manage the visibility of floating buttons based on the percentage of content played
+ * Show "Next" button when 95% of content has been played, hide it otherwise
+ */
+export const manageFloatingButtonsVisibility =
+  (percentage: number, hasDispatchedAlmostFinished: boolean): boolean => {
+    if (percentage >= 95 && !hasDispatchedAlmostFinished) {
+      window.dispatchEvent(new CustomEvent(SHOW_NEXT_BUTTON));
+      return true;
+    } else if (percentage < 95 && hasDispatchedAlmostFinished) {
+      return false;
+    }
+
+    return hasDispatchedAlmostFinished;
+  }
 
 /**
  * Smoothly scroll the window to the given Y position

@@ -51,9 +51,17 @@ It provides a clean and intuitive interface to browse and play video content sto
 
 ### Player interface
 
+The player overlay provides intuitive controls during video playback:
+
+- **Auto-hide behavior**: The overlay automatically hides after 5 seconds of inactivity and reappears on any user interaction
+- **Previous button**: Appears when playback starts, then auto-hides after 15 seconds to reduce UI clutter
+- **Next button**: Appears when the video reaches 95% completion, then auto-hides after 30 seconds
+
 <img alt="player interface - pause focused" height="432" src="./dist/assets/docs/player-overlay-1.png" />
 
 <img alt="player interface - bar focused" height="432" src="./dist/assets/docs/player-overlay-2.png" />
+
+<img alt="player interface - bar focused" height="432" src="./dist/assets/docs/player-overlay-3.png" />
 
 ## How to run the Application
 

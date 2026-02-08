@@ -8,8 +8,9 @@ import {
   PLAYER_STOP_FAST_FORWARD,
   PLAYER_STOP_REWIND,
   PLAYER_STOPPED,
+  SPEED_UPDATED,
 } from '@/events';
-import { formatTime } from '@/helpers';
+import { formatTime, manageFloatingButtonsVisibility } from '@/helpers';
 import type {
   AVPlayerModule,
   CreateVideoPlayerEventDetail,
@@ -44,12 +45,13 @@ const SEEK_LEVELS: SeekLevel[] = [
 export const avPlayer: AVPlayerModule = {
   // VARIABLES
 
+  currentSeekDirection: null,
   currentSpeed: 1,
   currentTime: 0,
-  videoDuration: 0,
-  seekStartTime: null,
+  hasDispatchedAlmostFinished: false,
   seekInterval: null,
-  currentSeekDirection: null,
+  seekStartTime: null,
+  videoDuration: 0,
 
   // METHODS
 
@@ -222,6 +224,8 @@ export const avPlayer: AVPlayerModule = {
     try {
       webapis.avplay.setSpeed(newSpeed);
       avPlayer.currentSpeed = newSpeed;
+
+      window.dispatchEvent(new CustomEvent(SPEED_UPDATED, { detail: { newSpeed } }));
       console.info('⏱️ Playback speed changed to:', newSpeed + 'x');
     } catch (error) {
       console.error('⏱️ ❌ Failed to change speed:', error);
@@ -278,6 +282,7 @@ export const avPlayer: AVPlayerModule = {
   stop: (): void => {
     const playerState = avPlayer.getState();
     avPlayer.currentSpeed = 1;
+    avPlayer.hasDispatchedAlmostFinished = false;
 
     if (playerState === PLAYER_STATES.PLAYING || playerState === PLAYER_STATES.PAUSED) {
       webapis.avplay.stop();
@@ -382,9 +387,9 @@ export const avPlayer: AVPlayerModule = {
    * Handle loaded metadata to set duration
    */
   onLoadedMetadata: (): void => {
-    const durationElement = document.getElementById('overlay-time-duration');
-    const currentTimeElement = document.getElementById('overlay-time-current');
-    const progressBar = document.getElementById('overlay-bar') as HTMLProgressElement | null;
+    const durationElement = document.getElementById('overlay__time--duration');
+    const currentTimeElement = document.getElementById('overlay__time--current');
+    const progressBar = document.getElementById('overlay__bar') as HTMLProgressElement | null;
 
     if (durationElement) {
       const durationInSeconds = avPlayer.videoDuration / 1000;
@@ -404,9 +409,9 @@ export const avPlayer: AVPlayerModule = {
    * Handle time update event
    */
   onTimeUpdate: (): void => {
-    const currentTimeElement = document.getElementById('overlay-time-current');
-    const progressBar = document.getElementById('overlay-bar') as HTMLProgressElement | null;
-    const progressBarIndicator = document.getElementById('overlay-bar-time');
+    const currentTimeElement = document.getElementById('overlay__time--current');
+    const progressBar = document.getElementById('overlay__bar') as HTMLProgressElement | null;
+    const progressBarIndicator = document.getElementById('overlay__bar--time');
 
     if (currentTimeElement) {
       const currentTimeInSeconds = avPlayer.currentTime / 1000;
@@ -416,6 +421,8 @@ export const avPlayer: AVPlayerModule = {
     if (progressBar && avPlayer.videoDuration) {
       const percentage = (avPlayer.currentTime / avPlayer.videoDuration) * 100;
       progressBar.value = percentage;
+      avPlayer.hasDispatchedAlmostFinished =
+        manageFloatingButtonsVisibility(percentage, avPlayer.hasDispatchedAlmostFinished);
 
       // Calculate position: 80px offset + percentage of available width
       // Available width = container width - 160px (2x 80px for time elements)

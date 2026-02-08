@@ -8,8 +8,9 @@ import {
   PLAYER_STOP_FAST_FORWARD,
   PLAYER_STOP_REWIND,
   PLAYER_STOPPED,
+  SPEED_UPDATED,
 } from '@/events';
-import { formatTime } from '@/helpers';
+import { formatTime, manageFloatingButtonsVisibility } from '@/helpers';
 import type {
   CreateVideoPlayerEventDetail,
   PlayerState,
@@ -46,6 +47,7 @@ export const videoPlayer: VideoPlayerModule = {
 
   currentSeekDirection: null,
   currentSpeed: 1,
+  hasDispatchedAlmostFinished: false,
   seekInterval: null,
   seekStartTime: null,
   videoElement: null,
@@ -201,6 +203,8 @@ export const videoPlayer: VideoPlayerModule = {
 
     videoElement.playbackRate = newSpeed;
     videoPlayer.currentSpeed = newSpeed;
+
+    window.dispatchEvent(new CustomEvent(SPEED_UPDATED, { detail: { newSpeed } }));
     console.info('⏱️ Playback speed changed to:', newSpeed + 'x');
   },
 
@@ -262,8 +266,10 @@ export const videoPlayer: VideoPlayerModule = {
 
     videoElement.pause();
     videoElement.currentTime = 0;
+    videoElement.playbackRate = 1;
     videoElement.src = '';
     videoPlayer.currentSpeed = 1;
+    videoPlayer.hasDispatchedAlmostFinished = false;
 
     // JS EVENTS LISTENERS REMOVAL
     videoElement.removeEventListener('ended', videoPlayer.onPlayerEnded);
@@ -281,11 +287,7 @@ export const videoPlayer: VideoPlayerModule = {
     window.removeEventListener(PLAYER_STOP_REWIND, videoPlayer.stopRewind);
 
     videoPlayer.stopSeek();
-    const videoPlayerElement = document.getElementById(VIDEO_CLASS_NAME);
-
-    if (videoPlayerElement) {
-      videoPlayerElement.style.display = 'none';
-    }
+    videoElement.style.display = 'none';
 
     const customEvent = new CustomEvent(PLAYER_STOPPED);
     window.dispatchEvent(customEvent);
@@ -383,9 +385,9 @@ export const videoPlayer: VideoPlayerModule = {
    * Handle loaded metadata event to set duration
    */
   onLoadedMetadata: (): void => {
-    const currentTimeElement = document.getElementById('overlay-time-current');
-    const durationElement = document.getElementById('overlay-time-duration');
-    const progressBar = document.getElementById('overlay-bar') as HTMLProgressElement | null;
+    const currentTimeElement = document.getElementById('overlay__time--current');
+    const durationElement = document.getElementById('overlay__time--duration');
+    const progressBar = document.getElementById('overlay__bar') as HTMLProgressElement | null;
 
     if (durationElement && videoPlayer.videoElement) {
       durationElement.textContent = formatTime(videoPlayer.videoElement.duration);
@@ -402,9 +404,9 @@ export const videoPlayer: VideoPlayerModule = {
    * Handle time update event from video element
    */
   onTimeUpdate: (): void => {
-    const currentTimeElement = document.getElementById('overlay-time-current');
-    const progressBar = document.getElementById('overlay-bar') as HTMLProgressElement | null;
-    const progressBarIndicator = document.getElementById('overlay-bar-time');
+    const currentTimeElement = document.getElementById('overlay__time--current');
+    const progressBar = document.getElementById('overlay__bar') as HTMLProgressElement | null;
+    const progressBarIndicator = document.getElementById('overlay__bar--time');
 
     if (currentTimeElement && videoPlayer.videoElement) {
       currentTimeElement.textContent = formatTime(videoPlayer.videoElement.currentTime);
@@ -414,6 +416,9 @@ export const videoPlayer: VideoPlayerModule = {
       const percentage =
         (videoPlayer.videoElement.currentTime / videoPlayer.videoElement.duration) * 100;
       progressBar.value = percentage;
+
+      videoPlayer.hasDispatchedAlmostFinished =
+        manageFloatingButtonsVisibility(percentage, videoPlayer.hasDispatchedAlmostFinished);
 
       if (progressBarIndicator && progressBar.offsetWidth) {
         const barWidth = progressBar.offsetWidth;
